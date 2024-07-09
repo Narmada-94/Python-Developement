@@ -1,0 +1,88 @@
+import tkinter as tk
+from tkinter import filedialog, messagebox
+import os
+import pygame
+
+class MusicPlayer:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Simple Music Player")
+        
+        self.playlist = []
+        self.current_index = 0
+        self.paused = False
+        
+        # Initialize Pygame mixer
+        pygame.mixer.init()
+        
+        # Create GUI elements
+        self.create_widgets()
+    
+    def create_widgets(self):
+        # Playlist Listbox
+        self.playlist_box = tk.Listbox(self.root, bg="lightgrey", selectbackground="sky blue", selectmode=tk.SINGLE, height=15)
+        self.playlist_box.pack(pady=20)
+        
+        # Control buttons
+        control_frame = tk.Frame(self.root)
+        control_frame.pack(pady=20)
+        
+        self.play_button = tk.Button(control_frame, text="Play", command=self.play_music)
+        self.play_button.grid(row=0, column=0, padx=10)
+        
+        self.pause_button = tk.Button(control_frame, text="Pause", command=self.pause_music)
+        self.pause_button.grid(row=0, column=1, padx=10)
+        
+        self.stop_button = tk.Button(control_frame, text="Stop", command=self.stop_music)
+        self.stop_button.grid(row=0, column=2, padx=10)
+        
+        self.add_button = tk.Button(control_frame, text="Add to Playlist", command=self.add_to_playlist)
+        self.add_button.grid(row=1, column=0, columnspan=3, pady=10)
+        
+        self.remove_button = tk.Button(control_frame, text="Remove from Playlist", command=self.remove_from_playlist)
+        self.remove_button.grid(row=2, column=0, columnspan=3, pady=10)
+        
+    def play_music(self):
+        if not self.paused:
+            if self.playlist:
+                self.current_index = self.playlist_box.curselection()[0]
+                self.current_song = self.playlist[self.current_index]
+                pygame.mixer.music.load(self.current_song)
+                pygame.mixer.music.play()
+            else:
+                messagebox.showwarning("Warning", "Playlist is empty!")
+        else:
+            pygame.mixer.music.unpause()
+            self.paused = False
+        
+    def pause_music(self):
+        if pygame.mixer.music.get_busy():
+            pygame.mixer.music.pause()
+            self.paused = True
+        
+    def stop_music(self):
+        pygame.mixer.music.stop()
+    
+    def add_to_playlist(self):
+        file = filedialog.askopenfilename(defaultextension=".mp3", filetypes=[("MP3 files", "*.mp3")])
+        if file:
+            self.playlist.append(file)
+            filename = os.path.basename(file)
+            self.playlist_box.insert(tk.END, filename)
+    
+    def remove_from_playlist(self):
+        if self.playlist:
+            selection = self.playlist_box.curselection()
+            if selection:
+                index = selection[0]
+                self.playlist_box.delete(index)
+                del self.playlist[index]
+                if index == self.current_index:
+                    self.stop_music()
+                    self.current_index = 0
+                    self.paused = False
+    
+if __name__ == "__main__":
+    root = tk.Tk()
+    music_player = MusicPlayer(root)
+    root.mainloop()

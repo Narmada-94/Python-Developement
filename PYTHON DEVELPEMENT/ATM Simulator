@@ -1,0 +1,66 @@
+import tkinter as tk
+from tkinter import messagebox
+
+class ATM:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("ATM Simulator")
+        self.balance = 50000 
+        self.create_widgets()
+
+    def create_widgets(self):
+        
+        self.balance_label = tk.Label(self.root, text=f"Balance: ₹{self.balance}", font=("Arial", 14))
+        self.balance_label.pack(pady=10)
+
+        
+        self.amount_entry = tk.Entry(self.root, font=("Arial", 14), bd=5)
+        self.amount_entry.pack(pady=5)
+
+        
+        self.check_balance_button = tk.Button(self.root, text="Check Balance", font=("Arial", 14), command=self.check_balance)
+        self.check_balance_button.pack(pady=5)
+
+        self.deposit_button = tk.Button(self.root, text="Deposit", font=("Arial", 14), command=self.deposit)
+        self.deposit_button.pack(pady=5)
+
+        self.withdraw_button = tk.Button(self.root, text="Withdraw", font=("Arial", 14), command=self.withdraw)
+        self.withdraw_button.pack(pady=5)
+
+    def check_balance(self):
+        messagebox.showinfo("Balance", f"Your balance is ₹{self.balance}")
+
+    def deposit(self):
+        try:
+            amount = float(self.amount_entry.get())
+            if amount > 0:
+                self.balance += amount
+                messagebox.showinfo("Deposit", f"₹{amount:.2f} deposited successfully.")
+                self.update_balance_label()
+            else:
+                messagebox.showerror("Error", "Please enter a positive amount.")
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid amount.")
+
+    def withdraw(self):
+        try:
+            amount = float(self.amount_entry.get())
+            if amount > 0:
+                if amount <= self.balance:
+                    self.balance -= amount
+                    messagebox.showinfo("Withdraw", f"₹{amount:.2f} withdrawn successfully.")
+                    self.update_balance_label()
+                else:
+                    messagebox.showerror("Error", "Insufficient balance.")
+            else:
+                messagebox.showerror("Error", "Please enter a positive amount.")
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid amount.")
+
+    def update_balance_label(self):
+        self.balance_label.config(text=f"Balance: ₹{self.balance}")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = ATM(root)
+    root.mainloop()
